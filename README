@@ -1,0 +1,49 @@
+NAME
+    Image::EdgeDetect - An implementation of the Canny edge detection
+    algorithm.
+
+SYNOPSIS
+      use Image::EdgeDetect;
+      my $detector = Image::EdgeDetect->new();
+      $detector->process($infile, $outfile);
+
+DESCRIPTION
+    Perform Canny edge detection on an input image, and write out the
+    resulting binary edge map image.
+
+USAGE
+      use Image::EdgeDetect;
+      my $detector = Image::EdgeDetect->new();
+      $detector->process($infile, $outfile);
+
+BUGS
+    You tell me.
+
+AUTHOR
+        Sasha Kovar
+        CPAN ID: ABEND
+        sasha-cpan@arcocene.org
+
+COPYRIGHT
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+    The full text of the license can be found in the LICENSE file included
+    with this module.
+
+SEE ALSO
+    Image::CornerDetect
+
+  my $detector = Image::EdgeDetect->new(\%args)
+    Create a new edge detector, passing in parameters to override the
+    defaults if desired. Arguments are:
+
+      low_threshold (default 2.5)
+      high_threshold (default 7.5)
+      kernel_radius (default 2.0)
+      kernel_width (default 16)
+
+  $detector->process($inFilename, $outFilename)
+    Perform edge detection on the input image, writing the edge map to the
+    output file.
+
