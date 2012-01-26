@@ -15,7 +15,7 @@ use POSIX qw(ceil floor);
 BEGIN {
     use Exporter ();
     use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
-    $VERSION     = '0.9';
+    $VERSION     = '0.9.1';
     @ISA         = qw(Exporter);
     @EXPORT      = qw();
     @EXPORT_OK   = qw();
@@ -31,7 +31,7 @@ Image::EdgeDetect - An implementation of the Canny edge detection algorithm.
 
   use Image::EdgeDetect;
   my $detector = Image::EdgeDetect->new();
-  $detector->process($infile, $outfile);
+  $detector->process($in, $out);
 
 =head1 DESCRIPTION
 
@@ -42,7 +42,7 @@ resulting binary edge map image.
 
   use Image::EdgeDetect;
   my $detector = Image::EdgeDetect->new();
-  $detector->process($infile, $outfile);
+  $detector->process($in, $out);
 
 =head1 BUGS
 
@@ -114,19 +114,26 @@ sub new {
   return $self;
 }
 
-=head2 $detector->process($inFilename, $outFilename)
+=head2 $out_img = $detector->process($in, [$out])
 
 Perform edge detection on the input image, writing the edge map to the
-output file.
+output file.  Input image can be a filename or Image::Magick image.
+Output is an optional filename to write the image to.  A
+Image::Magick image object is returned.
 
 =cut
 
 sub process {
-  my ($self, $inFilename, $outFilename) = @_;
+  my ($self, $in, $outFilename) = @_;
 
-  my $image = Image::Magick->new;
-  my $status = $image->Read($inFilename);
-  die "read: $status\n" if $status;
+  my $image = $in;
+
+  unless (ref($in) eq "Image::Magick") {
+    $image = Image::Magick->new();
+    my $status = $image->Read($in);
+    die "read: $status\n" if $status;
+  }
+
   $self->{sourceImage} = $image;
 
   $self->{width} = $image->Get('width');
@@ -140,7 +147,8 @@ sub process {
   my $high = int($self->{highThreshold});
   $self->performHysteresis($low, $high);
   $self->thresholdEdges();
-  $self->writeEdges($outFilename);
+
+  return $self->writeEdges($outFilename);
 }
 
 sub readLuminance {
@@ -200,7 +208,9 @@ sub writeImage {
     }
   }
 
-  $out->Write($file);
+  $out->Write($file) if $file;
+
+  return $out;
 }
 
 # NOTE: The elements of the method below (specifically the technique for
